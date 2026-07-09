@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DummyFooter } from "@/components/dummy-footer";
 
 export const metadata: Metadata = {
   title: "Dummy Live",
@@ -24,7 +25,10 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
         />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <div className="flex-1">{children}</div>
+        <DummyFooter />
+      </body>
     </html>
   );
 }
