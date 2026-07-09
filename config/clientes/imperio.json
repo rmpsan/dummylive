@@ -13,8 +13,7 @@
   "acesso": {
     "senha_unica_espectador": "EDI123",
     "campos_extras": [
-      { "id": "nome", "label": "Nome completo", "obrigatorio": true, "tipo": "texto" },
-      { "id": "cpf", "label": "CPF", "obrigatorio": true, "tipo": "cpf" }
+      { "id": "nome", "label": "Nome completo", "obrigatorio": true, "tipo": "texto" }
     ],
     "consentimento_lgpd_texto": "Autorizo o uso dos meus dados de participação nesta transmissão, conforme a Política de Privacidade.",
     "link_politica_privacidade": "/imperio/privacidade",
