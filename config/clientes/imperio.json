@@ -1,0 +1,102 @@
+{
+  "cliente": "Império do Artesanato",
+  "slug": "imperio",
+  "evento": {
+    "nome": "Imersão Império do Artesanato",
+    "subtitulo": "11 de julho · Ao vivo",
+    "video_fonte": "youtube",
+    "video_url": "https://www.youtube.com/watch?v=awQzjn72bI0",
+    "vimeo_is_live": true,
+    "status": "ao_vivo",
+    "data_inicio": "2026-07-11T20:00:00-03:00"
+  },
+  "acesso": {
+    "senha_unica_espectador": "IMPERIO11",
+    "campos_extras": [
+      { "id": "nome", "label": "Nome completo", "obrigatorio": true, "tipo": "texto" },
+      { "id": "cpf", "label": "CPF", "obrigatorio": true, "tipo": "cpf" }
+    ],
+    "consentimento_lgpd_texto": "Autorizo o uso dos meus dados de participação nesta transmissão, conforme a Política de Privacidade.",
+    "link_politica_privacidade": "/imperio/privacidade",
+    "contato_privacidade": ""
+  },
+  "kv": {
+    "logo": "/imperio/logo.png",
+    "favicon": "/imperio/logo.png",
+    "imagem_fundo_entrada": "/imperio/bg.png",
+    "destaque_imagem": "",
+    "imagem_showcase": "/imperio/mentoras-crop.png",
+    "cores": {
+      "primaria": "#D4A24C",
+      "secundaria": "#1A0509",
+      "fundo": "#260810",
+      "superficie": "#3A0F1A",
+      "texto": "#F6E9D2",
+      "texto_secundario": "#C9A98F",
+      "destaque": "#E4B85C",
+      "erro": "#FF5A6A",
+      "sucesso": "#7BD88F",
+      "sobre_primaria": "#2A0810"
+    },
+    "tipografia": {
+      "titulo": "Playfair Display",
+      "corpo": "Sora",
+      "mono": "JetBrains Mono",
+      "google_fonts_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Sora:wght@400;500;600&display=swap"
+    },
+    "layout": { "posicao_chat": "direita", "tema": "escuro", "raio_borda": "10px" }
+  },
+  "textos": {
+    "titulo_entrada": "Você chegou ao Império.",
+    "boas_vindas": "Seu acesso exclusivo à transmissão ao vivo do primeiro grande evento de empreendedorismo criado para quem vive do artesanato. Faça login com o e-mail cadastrado para entrar na sala.",
+    "aguardando": "A transmissão começa em breve. Fique nesta página — tudo acontece aqui.",
+    "ao_vivo_label": "AO VIVO AGORA",
+    "encerrada": "A transmissão acabou. O seu Império, não. Obrigado por fazer parte da primeira turma do Império do Artesanato.",
+    "erro_senha": "E-mail ou senha não conferem. Verifique se está usando os mesmos dados da inscrição.",
+    "rodape": "Império do Artesanato · Transmissão ao vivo exclusiva para inscritos · acesso pessoal e intransferível"
+  },
+  "features": {
+    "chat": true,
+    "reacoes": true,
+    "emojis": ["❤️", "👏", "🙏", "🔥", "👑"],
+    "enquetes": false,
+    "cta": { "ativo": false },
+    "contador_online": true,
+    "rate_limit_segundos": 5,
+    "limite_caracteres_msg": 280,
+    "palavras_proibidas": []
+  },
+  "tracking": {
+    "heartbeat_seg": 20,
+    "milestones_percentuais": [10, 25, 50, 75, 90, 100],
+    "granularidade_trecho_seg": 5
+  },
+  "conteudo": {
+    "hero_titulo": "Você está dentro do Império.",
+    "hero_texto": "Bem-vindo à transmissão ao vivo do primeiro grande evento de empreendedorismo criado para quem vive do artesanato. O que começa agora não é uma aula. É o dia em que o seu dom vira negócio.\n\nDeixe esta página aberta. Tudo acontece aqui.",
+    "blocos": [
+      {
+        "titulo": "Se você está aqui, é porque chegou a sua vez.",
+        "corpo": "Você tem potencial. Tem dom, criatividade e vontade. E provavelmente já sentiu, mais de uma vez, que algo trava o seu avanço — o medo, a insegurança, a rotina pesada, a sensação de que se esforça o tempo todo e nunca é suficiente.\n\nHoje isso muda. Nas próximas horas você vai atravessar os 5 pilares que transformam um artesão comum em um artesão imbatível — no lucro e na vida."
+      },
+      {
+        "titulo": "O que você vai viver hoje",
+        "corpo": "1. Inteligência Emocional — Sair do modo sobrevivência e assumir o controle da própria cabeça.\n2. Propósito e Sucesso — Transformar dom em direção, e direção em resultado.\n3. Posicionamento e Vendas — Deixar de ser \"quem faz bonito\" para ser quem vende bem.\n4. Inovação e Digital — Colocar o seu artesanato onde as pessoas compram: no digital.\n5. Família e Prosperidade — Crescer financeiramente sem abrir mão de quem você ama."
+      },
+      {
+        "titulo": "Quem vai te guiar hoje",
+        "corpo": "Você vai aprender ao vivo com Edi Pacheco e um time de mentoras que construíram, na prática, o que vão ensinar aqui: Aládia Ruiz, Eltzangela Cobos, Fernanda Gama, Rodrigo, Sara Piovele e Evelyn Rojas."
+      },
+      {
+        "titulo": "Não saia da tela. Vem coisa grande.",
+        "corpo": "Durante a transmissão você acompanha ao vivo momentos que só quem está presente vai ver — incluindo a aula de costura ao vivo e a premiação das formandas da primeira turma do Mapa da Modelagem Perfeita.\n\nCada bloco tem algo que você não vai querer perder. Fique."
+      },
+      {
+        "titulo": "Para não perder nada",
+        "corpo": "• Mantenha esta página aberta do início ao fim — tudo acontece aqui.\n• Use fones de ouvido para não perder nenhum detalhe.\n• Instabilidade na imagem? Atualize a página (F5). A transmissão volta no ponto ao vivo.\n• Prefira uma conexão estável — Wi-Fi ou cabo, sempre que possível."
+      }
+    ],
+    "galeria_titulo": "",
+    "galeria": []
+  }
+}

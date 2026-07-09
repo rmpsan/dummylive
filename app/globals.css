@@ -1,0 +1,508 @@
+@import "tailwindcss";
+
+/* =====================================================================
+ * DUMMY LIVE — Sistema de design white-label
+ *
+ * Filosofia de customização: o cliente define poucas coisas no JSON
+ * (cor primária, superfícies, logo, textos). TODO o resto — tints,
+ * bordas, sombras, glow, vidro, estados hover — é DERIVADO em CSS com
+ * color-mix(). JSON mínimo → visual premium. Trocar 1 cor re-skina tudo.
+ * ===================================================================== */
+
+:root {
+  /* --- Tokens-base (sobrescritos por cliente em [slug]/layout via KV) --- */
+  --kv-primaria: #ff6b00;
+  --kv-secundaria: #0a0a0a;
+  --kv-fundo: #0b0b0d;
+  --kv-superficie: #141417;
+  --kv-texto: #ffffff;
+  --kv-texto-secundario: #9aa0aa;
+  --kv-destaque: #b8ff57;
+  --kv-erro: #ff3d71;
+  --kv-sucesso: #29e0a0;
+  --kv-sobre-primaria: #0a0a0a; /* texto sobre a cor primária */
+  --kv-raio: 14px;
+  --kv-font-titulo: "Sora", system-ui, sans-serif;
+  --kv-font-corpo: "Inter", system-ui, sans-serif;
+  --kv-font-mono: ui-monospace, "JetBrains Mono", monospace;
+
+  /* --- Escala de raio derivada de --kv-raio --- */
+  --r-xs: calc(var(--kv-raio) * 0.4);
+  --r-sm: calc(var(--kv-raio) * 0.65);
+  --r-md: var(--kv-raio);
+  --r-lg: calc(var(--kv-raio) * 1.4);
+  --r-xl: calc(var(--kv-raio) * 2);
+
+  /* --- Tints/derivações da primária (substituídas no ponto de uso) --- */
+  --kv-primaria-08: color-mix(in srgb, var(--kv-primaria) 8%, transparent);
+  --kv-primaria-14: color-mix(in srgb, var(--kv-primaria) 14%, transparent);
+  --kv-primaria-24: color-mix(in srgb, var(--kv-primaria) 24%, transparent);
+  --kv-primaria-40: color-mix(in srgb, var(--kv-primaria) 40%, transparent);
+  --kv-primaria-suave: color-mix(in srgb, var(--kv-primaria) 18%, var(--kv-fundo));
+
+  /* --- Superfícies e bordas derivadas (adaptam a tema claro/escuro) --- */
+  --sup-1: var(--kv-superficie);
+  --sup-2: color-mix(in srgb, var(--kv-superficie), var(--kv-texto) 5%);
+  --sup-3: color-mix(in srgb, var(--kv-superficie), var(--kv-texto) 9%);
+  --borda: color-mix(in srgb, var(--kv-texto) 10%, transparent);
+  --borda-forte: color-mix(in srgb, var(--kv-texto) 18%, transparent);
+  --scrim: color-mix(in srgb, var(--kv-secundaria) 55%, transparent);
+
+  /* --- Sombras --- */
+  --sombra-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sombra-md: 0 8px 24px -8px rgba(0, 0, 0, 0.5);
+  --sombra-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.65);
+  --glow: 0 0 0 1px var(--kv-primaria-24), 0 12px 40px -12px var(--kv-primaria-40);
+
+  /* Altura de viewport estável no mobile (RF-73). */
+  --app-vh: 100svh;
+}
+
+@supports not (height: 100svh) {
+  :root {
+    --app-vh: 100vh;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--kv-fundo);
+  color: var(--kv-texto);
+  font-family: var(--kv-font-corpo);
+  font-feature-settings: "cv11", "ss01";
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--kv-font-titulo);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Alvos de toque ≥ 44px (§7.5 / RF-69). */
+button,
+[role="button"],
+input[type="submit"] {
+  min-height: 44px;
+}
+
+::selection {
+  background: var(--kv-primaria-40);
+  color: var(--kv-texto);
+}
+
+/* Foco visível de teclado com a cor da marca (RNF-10). */
+:focus-visible {
+  outline: 2px solid var(--kv-primaria);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* Scrollbars discretas e temáticas. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--borda-forte) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--borda-forte);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--kv-texto) 28%, transparent);
+}
+
+/* Safe-areas do iPhone (notch / home indicator) — RF-76. */
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* =====================================================================
+ * Fundo ambiente derivado da marca (gate + telas cheias).
+ * Radiais suaves da primária sobre o fundo + textura de grid fina.
+ * ===================================================================== */
+.dl-ambient {
+  position: relative;
+  background-color: var(--kv-fundo);
+  background-image:
+    radial-gradient(60% 50% at 18% 0%, var(--kv-primaria-14), transparent 70%),
+    radial-gradient(50% 40% at 100% 10%, color-mix(in srgb, var(--kv-destaque) 10%, transparent), transparent 70%),
+    radial-gradient(80% 60% at 50% 100%, color-mix(in srgb, var(--kv-secundaria) 60%, transparent), transparent 70%);
+}
+.dl-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--borda) 1px, transparent 1px),
+    linear-gradient(90deg, var(--borda) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(70% 60% at 50% 30%, #000 0%, transparent 75%);
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* =====================================================================
+ * Componentes de UI (centralizam o look; facilitam a manutenção).
+ * ===================================================================== */
+
+/* Cartão / superfície de vidro (com brilho interno sutil no topo) */
+.dl-card {
+  background: color-mix(in srgb, var(--sup-1) 90%, transparent);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--kv-texto) 6%, transparent),
+    var(--sombra-md);
+}
+.dl-glass {
+  background: color-mix(in srgb, var(--sup-1) 72%, transparent);
+  backdrop-filter: blur(20px) saturate(1.25);
+  -webkit-backdrop-filter: blur(20px) saturate(1.25);
+  border: 1px solid var(--borda);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--kv-texto) 7%, transparent);
+}
+
+/* Máscara de fade no topo de listas roláveis (ex.: chat). */
+.dl-fade-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 26px);
+  mask-image: linear-gradient(to bottom, transparent, #000 26px);
+}
+
+/* Campos de formulário */
+.dl-field {
+  width: 100%;
+  background: color-mix(in srgb, var(--kv-fundo) 60%, var(--sup-2));
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  color: var(--kv-texto);
+  padding: 0.7rem 0.85rem;
+  font-size: 0.95rem;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+.dl-field::placeholder {
+  color: color-mix(in srgb, var(--kv-texto-secundario) 80%, transparent);
+}
+.dl-field:focus {
+  outline: none;
+  border-color: var(--kv-primaria);
+  box-shadow: 0 0 0 3px var(--kv-primaria-24);
+  background: color-mix(in srgb, var(--kv-fundo) 40%, var(--sup-2));
+}
+
+/* Botões */
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--r-md);
+  padding: 0.72rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.16s ease, background 0.16s ease,
+    box-shadow 0.16s ease, border-color 0.16s ease;
+  border: 1px solid transparent;
+  user-select: none;
+}
+.dl-btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+.dl-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.dl-btn-primary {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kv-primaria), #fff 8%),
+    var(--kv-primaria)
+  );
+  color: var(--kv-sobre-primaria);
+  box-shadow: 0 6px 20px -8px var(--kv-primaria-40);
+}
+.dl-btn-primary:hover:not(:disabled) {
+  box-shadow: var(--glow);
+}
+.dl-btn-ghost {
+  background: color-mix(in srgb, var(--kv-texto) 6%, transparent);
+  border-color: var(--borda);
+  color: var(--kv-texto);
+}
+.dl-btn-ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--kv-texto) 10%, transparent);
+  border-color: var(--borda-forte);
+}
+
+/* Pílulas / badges */
+.dl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid var(--borda);
+  background: color-mix(in srgb, var(--kv-texto) 5%, transparent);
+  color: var(--kv-texto-secundario);
+}
+.dl-badge-live {
+  color: var(--kv-erro);
+  border-color: color-mix(in srgb, var(--kv-erro) 40%, transparent);
+  background: color-mix(in srgb, var(--kv-erro) 14%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.dl-badge-staff {
+  color: var(--kv-destaque);
+  border-color: color-mix(in srgb, var(--kv-destaque) 40%, transparent);
+  background: color-mix(in srgb, var(--kv-destaque) 14%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.62rem;
+}
+
+/* Ponto "ao vivo" pulsante */
+.dl-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--kv-erro);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--kv-erro) 70%, transparent);
+  animation: dl-pulse 1.8s infinite;
+}
+
+/* =====================================================================
+ * Animações (sutis; respeitam prefers-reduced-motion).
+ * ===================================================================== */
+@keyframes dl-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--kv-erro) 65%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes dl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes dl-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dl-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes dl-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.dl-anim-up {
+  animation: dl-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.dl-anim-in {
+  animation: dl-fade-in 0.4s ease both;
+}
+.dl-msg-in {
+  animation: dl-msg-in 0.22s ease both;
+}
+
+/* Skeleton shimmer */
+.dl-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--kv-texto) 6%, transparent);
+}
+.dl-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--kv-texto) 8%, transparent),
+    transparent
+  );
+  animation: dl-shimmer 1.5s infinite;
+}
+
+/* Reações flutuantes ao vivo (RF-17) — sobem numa faixa abaixo do player. */
+@keyframes dl-float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-52px) scale(0.9) translateX(var(--drift, 0));
+  }
+}
+.dl-reaction {
+  position: absolute;
+  bottom: 4px;
+  font-size: 1.5rem;
+  will-change: transform, opacity;
+  animation: dl-float-up 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* Toasts */
+@keyframes dl-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.dl-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: var(--r-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--borda);
+  background: color-mix(in srgb, var(--sup-2) 92%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--sombra-lg);
+  animation: dl-toast-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.dl-toast-erro {
+  border-color: color-mix(in srgb, var(--kv-erro) 45%, transparent);
+}
+.dl-toast-sucesso {
+  border-color: color-mix(in srgb, var(--kv-sucesso) 45%, transparent);
+}
+
+/* Glow sutil atrás do logo/hero do gate. */
+.dl-logo-glow {
+  filter: drop-shadow(0 0 22px var(--kv-primaria-24));
+}
+
+/* Flutuar suave (hero "uau"). */
+@keyframes dl-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(1deg);
+  }
+}
+.dl-float {
+  animation: dl-float 6s ease-in-out infinite;
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 40px var(--kv-primaria-24));
+}
+
+/* Título com brilho dourado varrendo (shimmer). */
+@keyframes dl-shine {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+.dl-shine {
+  background: linear-gradient(
+    100deg,
+    var(--kv-texto) 30%,
+    var(--kv-primaria) 45%,
+    color-mix(in srgb, var(--kv-primaria), #fff 40%) 50%,
+    var(--kv-primaria) 55%,
+    var(--kv-texto) 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: dl-shine 6s linear infinite;
+}
+
+/* Halo radial dourado atrás de um elemento. */
+.dl-halo {
+  position: relative;
+}
+.dl-halo::before {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  background: radial-gradient(
+    circle at 50% 45%,
+    var(--kv-primaria-24),
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

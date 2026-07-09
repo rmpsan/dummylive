@@ -1,0 +1,40 @@
+{
+  "cliente": "Instituto Aurora",
+  "slug": "semchat",
+  "evento": {
+    "nome": "Aula Magna 2026",
+    "subtitulo": "Transmissão sem chat, foco no conteúdo",
+    "vimeo_video_id": "1084537",
+    "vimeo_is_live": false,
+    "status": "ao_vivo"
+  },
+  "acesso": {
+    "senha_unica_espectador": "AURORA",
+    "campos_extras": [{ "id": "nome", "label": "Nome", "obrigatorio": true }]
+  },
+  "kv": {
+    "cores": {
+      "primaria": "#7C5CFF",
+      "fundo": "#0C0A16",
+      "superficie": "#161228",
+      "texto": "#F3F0FF",
+      "texto_secundario": "#9C93C4",
+      "destaque": "#FFB020",
+      "sobre_primaria": "#0C0A16"
+    },
+    "layout": { "raio_borda": "18px", "posicao_chat": "direita", "tema": "escuro" }
+  },
+  "textos": {
+    "titulo_entrada": "Entre na Aula Magna",
+    "boas_vindas": "Acesse com seu email para assistir.",
+    "ao_vivo_label": "AO VIVO",
+    "rodape": "Instituto Aurora — Educação"
+  },
+  "features": {
+    "chat": false,
+    "reacoes": true,
+    "emojis": ["👏", "🎓", "💡", "❤️"],
+    "contador_online": true,
+    "cta": { "ativo": false }
+  }
+}

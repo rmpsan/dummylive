@@ -1,0 +1,66 @@
+{
+  "cliente": "ACME Corp",
+  "slug": "acme",
+  "evento": {
+    "nome": "Kickoff Global 2026",
+    "subtitulo": "Ao vivo de São Paulo para o mundo",
+    "vimeo_video_id": "1084537",
+    "vimeo_is_live": false,
+    "status": "ao_vivo",
+    "data_inicio": "2026-09-01T10:00:00-03:00"
+  },
+  "acesso": {
+    "senha_unica_espectador": "ACME2026",
+    "campos_extras": [
+      { "id": "nome", "label": "Seu nome", "obrigatorio": true },
+      { "id": "time", "label": "Time / Área", "obrigatorio": false }
+    ],
+    "consentimento_lgpd_texto": "Concordo com o uso dos meus dados de participação conforme a política interna.",
+    "link_politica_privacidade": "https://example.com/acme/privacidade"
+  },
+  "kv": {
+    "cores": {
+      "primaria": "#4F7CFF",
+      "secundaria": "#050914",
+      "fundo": "#080B16",
+      "superficie": "#0F1526",
+      "texto": "#EEF2FF",
+      "texto_secundario": "#8B93AD",
+      "destaque": "#38E1C6",
+      "erro": "#FF5470",
+      "sucesso": "#38E1C6",
+      "sobre_primaria": "#04081A"
+    },
+    "tipografia": { "titulo": "Sora", "corpo": "Inter", "mono": "JetBrains Mono" },
+    "layout": { "posicao_chat": "esquerda", "tema": "escuro", "raio_borda": "22px" }
+  },
+  "textos": {
+    "titulo_entrada": "Acesse o Kickoff",
+    "boas_vindas": "Entre com seu email corporativo para assistir.",
+    "aguardando": "O Kickoff começa em instantes.",
+    "ao_vivo_label": "LIVE",
+    "encerrada": "Transmissão encerrada. Até a próxima!",
+    "erro_senha": "Senha incorreta. Verifique com seu gestor.",
+    "rodape": "ACME Corp • Confidencial — uso interno"
+  },
+  "features": {
+    "chat": true,
+    "reacoes": true,
+    "enquetes": false,
+    "cta": {
+      "ativo": true,
+      "texto": "Baixar apresentação",
+      "url": "https://example.com/acme/deck",
+      "posicao": "abaixo_do_video"
+    },
+    "contador_online": true,
+    "rate_limit_segundos": 4,
+    "limite_caracteres_msg": 240,
+    "palavras_proibidas": []
+  },
+  "tracking": {
+    "heartbeat_seg": 20,
+    "milestones_percentuais": [25, 50, 75, 100],
+    "granularidade_trecho_seg": 5
+  }
+}
