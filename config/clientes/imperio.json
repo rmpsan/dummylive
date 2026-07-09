@@ -11,7 +11,7 @@
     "data_inicio": "2026-07-11T20:00:00-03:00"
   },
   "acesso": {
-    "senha_unica_espectador": "IMPERIO11",
+    "senha_unica_espectador": "EDI123",
     "campos_extras": [
       { "id": "nome", "label": "Nome completo", "obrigatorio": true, "tipo": "texto" },
       { "id": "cpf", "label": "CPF", "obrigatorio": true, "tipo": "cpf" }
@@ -85,7 +85,7 @@
       },
       {
         "titulo": "Quem vai te guiar hoje",
-        "corpo": "Você vai aprender ao vivo com Edi Pacheco e um time de mentoras que construíram, na prática, o que vão ensinar aqui: Aládia Ruiz, Eltzangela Cobos, Fernanda Gama, Rodrigo, Sara Piovele e Evelyn Rojas."
+        "corpo": "Você vai aprender ao vivo com Edi Pacheco e um time de mentoras que construíram, na prática, o que vão ensinar aqui: Aládia Ruiz, Elizangela Cobos, Fernanda Gama, Rodrigo, Sara Piovete e Evelyn Rojas."
       },
       {
         "titulo": "Não saia da tela. Vem coisa grande.",
