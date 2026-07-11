@@ -189,7 +189,7 @@ export function ModPanel({
 
       <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col gap-4 p-4 lg:grid lg:grid-cols-[1fr_380px]">
         {/* Chat em modo moderação */}
-        <section className="flex min-h-[420px] flex-col lg:h-[calc(var(--app-vh)-6rem)]">
+        <section className="flex h-[62vh] flex-col lg:h-[calc(var(--app-vh)-6rem)]">
           <Chat
             slug={slug}
             liveId={liveId}
@@ -201,7 +201,7 @@ export function ModPanel({
         </section>
 
         {/* Painel de controles */}
-        <aside className="flex flex-col gap-4 overflow-y-auto">
+        <aside className="dl-scroll flex flex-col gap-4 overflow-y-auto">
           {/* Status (admin) */}
           {isAdmin && (
             <Bloco titulo="Status da transmissão">
@@ -293,7 +293,7 @@ export function ModPanel({
               </button>
             }
           >
-            <div className="max-h-80 space-y-1 overflow-y-auto">
+            <div className="dl-scroll max-h-80 space-y-1 overflow-y-auto">
               {participantes.length === 0 && (
                 <p className="py-4 text-center text-sm text-[var(--kv-texto-secundario)]">
                   Ninguém ainda.

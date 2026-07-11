@@ -252,7 +252,7 @@ export function Sala({
             } flex min-h-0 flex-1 flex-col gap-3 p-3 lg:p-0`}
           >
             {ctaBloco && <div className="lg:hidden">{ctaBloco}</div>}
-            <div className="min-h-[340px] flex-1 lg:h-[calc(var(--app-vh)-2.5rem-40px)]">
+            <div className="h-[62vh] min-h-[340px] lg:h-[calc(var(--app-vh)-2.5rem-40px)]">
               <Chat
                 slug={slug}
                 liveId={liveId}
