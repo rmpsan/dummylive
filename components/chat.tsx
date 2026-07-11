@@ -48,6 +48,8 @@ export function Chat({
     liveId && getBrowserClient() ? "conectando" : "caiu"
   );
   const [novasMsgs, setNovasMsgs] = useState(false);
+  // Curadoria (staffMode): mensagens selecionadas para transmitir no overlay.
+  const [sel, setSel] = useState<Set<number>>(() => new Set());
 
   const listaRef = useRef<HTMLDivElement>(null);
   const grudadoNoFim = useRef(true);
@@ -210,6 +212,34 @@ export function Chat({
     }
   }
 
+  const toggleSel = useCallback((id: number) => {
+    setSel((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }, []);
+
+  async function transmitirCg() {
+    const ids = [...sel];
+    if (!ids.length) return;
+    try {
+      const res = await fetch("/api/mod", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, acao: "transmitir_cg", mensagemIds: ids }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok) {
+        toast.show(`▶ ${d.total ?? ids.length} enviada(s) ao overlay (5s cada).`, "sucesso");
+        setSel(new Set());
+      } else toast.show(`Falha: ${d?.erro ?? res.status}`, "erro");
+    } catch {
+      toast.show("Falha de conexão.", "erro");
+    }
+  }
+
   const fixadas = mensagens.filter((m) => m.fixada && !m.apagada);
 
   return (
@@ -283,7 +313,14 @@ export function Chat({
           </div>
         )}
         {mensagens.map((m) => (
-          <Mensagem key={m.id} m={m} staffMode={staffMode} onModerar={moderar} />
+          <Mensagem
+            key={m.id}
+            m={m}
+            staffMode={staffMode}
+            onModerar={moderar}
+            selecionada={sel.has(m.id)}
+            onToggleSel={() => toggleSel(m.id)}
+          />
         ))}
       </div>
 
@@ -295,6 +332,31 @@ export function Chat({
         >
           ↓ novas mensagens
         </button>
+      )}
+
+      {/* Curadoria: barra de transmissão para o overlay (vMix) */}
+      {staffMode && sel.size > 0 && (
+        <div className="flex items-center justify-between gap-2 border-t border-[var(--kv-primaria-24)] bg-[var(--kv-primaria-08)] p-2.5">
+          <span className="text-xs text-[var(--kv-texto-secundario)]">
+            {sel.size} selecionada(s) para o overlay
+          </span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setSel(new Set())}
+              className="dl-btn dl-btn-ghost px-3 py-1.5 text-xs"
+            >
+              limpar
+            </button>
+            <button
+              type="button"
+              onClick={transmitirCg}
+              className="dl-btn dl-btn-primary px-3 py-1.5 text-xs"
+            >
+              ▶ Transmitir ({sel.size})
+            </button>
+          </div>
+        </div>
       )}
 
       {!staffMode &&
@@ -344,17 +406,24 @@ function Mensagem({
   m,
   staffMode,
   onModerar,
+  selecionada = false,
+  onToggleSel,
 }: {
   m: Mensagem;
   staffMode: boolean;
   onModerar: (acao: string, extra: Record<string, unknown>) => void;
+  selecionada?: boolean;
+  onToggleSel?: () => void;
 }) {
   const nome = m.autor_nome || "Participante";
+  const curavel = staffMode && !m.apagada && !m.is_staff;
   return (
     <div
       className={`dl-msg-in group flex gap-2.5 rounded-[var(--r-sm)] px-2 py-1.5 transition-colors hover:bg-[var(--kv-texto)]/[0.03] ${
         m.is_staff ? "bg-[var(--kv-destaque)]/[0.06]" : ""
-      } ${m.apagada ? "opacity-45" : ""}`}
+      } ${m.apagada ? "opacity-45" : ""} ${
+        selecionada ? "bg-[var(--kv-primaria-08)] ring-1 ring-[var(--kv-primaria)]" : ""
+      }`}
     >
       <Avatar nome={nome} staff={m.is_staff} />
       <div className="min-w-0 flex-1">
@@ -393,6 +462,21 @@ function Mensagem({
           </div>
         )}
       </div>
+      {curavel && onToggleSel && (
+        <button
+          type="button"
+          onClick={onToggleSel}
+          title="Selecionar para transmitir no overlay (vMix)"
+          aria-label={selecionada ? "Remover do overlay" : "Selecionar para o overlay"}
+          className={`mt-0.5 flex h-6 shrink-0 items-center gap-1 self-start rounded-full border px-2 text-[10px] font-bold transition-colors ${
+            selecionada
+              ? "border-[var(--kv-primaria)] bg-[var(--kv-primaria)] text-[var(--kv-sobre-primaria)]"
+              : "border-[var(--borda)] text-[var(--kv-texto-secundario)] hover:border-[var(--kv-primaria)] hover:text-[var(--kv-primaria)]"
+          }`}
+        >
+          {selecionada ? "✓ CG" : "CG"}
+        </button>
+      )}
     </div>
   );
 }

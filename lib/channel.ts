@@ -21,3 +21,6 @@ export function canalToken(liveId: string): string {
 export const topicoChat = (liveId: string) => `chat:${canalToken(liveId)}`;
 export const topicoReacoes = (liveId: string) =>
   `reactions:${canalToken(liveId)}`;
+/** Canal da curadoria → overlay (CG) para o vMix. */
+export const topicoOverlay = (liveId: string) =>
+  `overlay:${canalToken(liveId)}`;

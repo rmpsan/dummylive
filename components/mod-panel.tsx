@@ -48,6 +48,12 @@ export function ModPanel({
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [online, setOnline] = useState<number | null>(null);
   const [oficial, setOficial] = useState("");
+  const [origin, setOrigin] = useState("");
+  useEffect(() => {
+    const id = setTimeout(() => setOrigin(window.location.origin), 0);
+    return () => clearTimeout(id);
+  }, []);
+  const overlayUrl = `${origin}/overlay/${slug}`;
 
   const moderar = useCallback(
     async (acao: string, extra: Record<string, unknown> = {}) => {
@@ -214,6 +220,46 @@ export function ModPanel({
               </div>
             </Bloco>
           )}
+
+          {/* Overlay / CG para o vMix */}
+          <Bloco titulo="Overlay para o vMix (CG)">
+            <p className="mb-2.5 text-xs leading-relaxed text-[var(--kv-texto-secundario)]">
+              No chat, clique em <strong className="text-[var(--kv-texto)]">CG</strong>{" "}
+              para selecionar mensagens e depois em{" "}
+              <strong className="text-[var(--kv-texto)]">▶ Transmitir</strong>. Elas
+              entram em fila no overlay, <strong className="text-[var(--kv-texto)]">5s
+              cada</strong>. Use o link abaixo como <em>Web Browser input</em> no
+              vMix (fundo transparente).
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={overlayUrl}
+                onFocus={(e) => e.currentTarget.select()}
+                className="dl-field !min-h-0 flex-1 py-1.5 text-xs"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(overlayUrl).then(
+                    () => toast.show("Link do overlay copiado.", "sucesso"),
+                    () => toast.show("Copie o link manualmente.", "erro")
+                  );
+                }}
+                className="dl-btn dl-btn-ghost shrink-0 px-3 py-1.5 text-xs"
+              >
+                Copiar
+              </button>
+              <a
+                href={overlayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dl-btn dl-btn-primary shrink-0 px-3 py-1.5 text-xs"
+              >
+                Abrir
+              </a>
+            </div>
+          </Bloco>
 
           {/* Mensagem oficial */}
           <Bloco titulo="Mensagem oficial">

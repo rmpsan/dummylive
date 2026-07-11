@@ -7,7 +7,7 @@ import { getStaffContext, temPapel, type PapelStaff } from "@/lib/staff";
 import { sanitizeMessage } from "@/lib/chat";
 import { safeParseClienteConfig } from "@/lib/config/schema";
 import { broadcast } from "@/lib/realtime-broadcast";
-import { topicoChat } from "@/lib/channel";
+import { topicoChat, topicoOverlay } from "@/lib/channel";
 import { resolverVideo } from "@/lib/video";
 import { contarOnline } from "@/lib/online";
 
@@ -26,8 +26,10 @@ const bodySchema = z.object({
     "promover",
     "salvar_config",
     "metricas_desde",
+    "transmitir_cg",
   ]),
   mensagemId: z.number().int().optional(),
+  mensagemIds: z.array(z.number().int()).max(50).optional(),
   participanteId: z.string().uuid().optional(),
   fixar: z.boolean().optional(),
   minutos: z.number().int().nullable().optional(),
@@ -261,6 +263,31 @@ export async function POST(req: Request) {
       }
       await log("metricas_desde", null, { metricas_desde: valor ?? null });
       return NextResponse.json({ ok: true, metricas_desde: valor ?? null });
+    }
+
+    // ----- Curadoria → transmite mensagens para o overlay (CG do vMix) -----
+    case "transmitir_cg": {
+      const ids = (body.mensagemIds ?? []).filter((n) => Number.isInteger(n));
+      if (!ids.length)
+        return NextResponse.json({ erro: "faltou_ids" }, { status: 400 });
+      const { data: msgs, error } = await admin
+        .from("mensagens_chat")
+        .select("id, autor_nome, texto, apagada")
+        .eq("live_id", liveId)
+        .in("id", ids);
+      if (error) return NextResponse.json({ erro: "interno" }, { status: 500 });
+      // Preserva a ordem em que o operador selecionou.
+      const porId = new Map(
+        (msgs ?? [])
+          .filter((m) => !m.apagada)
+          .map((m) => [m.id, { id: m.id, autor: m.autor_nome ?? "Participante", texto: m.texto }])
+      );
+      const mensagens = ids.map((id) => porId.get(id)).filter(Boolean);
+      if (!mensagens.length)
+        return NextResponse.json({ erro: "nenhuma_valida" }, { status: 400 });
+      await broadcast(topicoOverlay(liveId), "cg", { mensagens });
+      await log("transmitir_cg", null, { total: mensagens.length });
+      return NextResponse.json({ ok: true, total: mensagens.length });
     }
 
     // ----- Promover staff (RF-50, admin) -----
