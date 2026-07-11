@@ -64,6 +64,8 @@ export const kvSchema = z.object({
   destaque_imagem: urlOpcional,
   /** Imagem de vitrine (ex.: grade de mentoras) exibida na entrada. */
   imagem_showcase: urlOpcional,
+  /** Imagem exibida no lugar do player enquanto a live está "aguardando". */
+  imagem_aguardando: urlOpcional,
   cores: coresSchema.default({}),
   tipografia: tipografiaSchema.default({}),
   layout: layoutSchema.default({}),
@@ -105,6 +107,9 @@ export const eventoSchema = z.object({
   vimeo_is_live: z.boolean().default(true),
   status: z.enum(["aguardando", "ao_vivo", "encerrada"]).default("aguardando"),
   data_inicio: z.string().optional(),
+  /** Início oficial dos dados: o dashboard só conta atividade a partir daqui
+   * (exclui testes anteriores). ISO 8601. Vazio = conta tudo. */
+  metricas_desde: z.string().optional(),
 });
 
 export const ctaSchema = z.object({

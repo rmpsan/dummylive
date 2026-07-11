@@ -25,6 +25,7 @@ const bodySchema = z.object({
     "status",
     "promover",
     "salvar_config",
+    "metricas_desde",
   ]),
   mensagemId: z.number().int().optional(),
   participanteId: z.string().uuid().optional(),
@@ -36,6 +37,8 @@ const bodySchema = z.object({
   email: z.string().email().optional(),
   papel: z.enum(["moderador", "admin"]).optional(),
   senha: z.string().min(6).optional(),
+  // metricas_desde: ISO 8601, ou null/"" para limpar
+  metricas_desde: z.string().nullable().optional(),
   // salvar_config
   config: z.unknown().optional(),
   senha_espectador: z.string().optional(),
@@ -100,7 +103,12 @@ export async function POST(req: Request) {
   }
 
   // Ações que exigem admin.
-  const exigeAdmin = new Set(["status", "promover", "salvar_config"]);
+  const exigeAdmin = new Set([
+    "status",
+    "promover",
+    "salvar_config",
+    "metricas_desde",
+  ]);
   const minimo: PapelStaff = exigeAdmin.has(body.acao) ? "admin" : "moderador";
   if (!temPapel(ctx, minimo)) {
     return NextResponse.json({ erro: "papel_insuficiente" }, { status: 403 });
@@ -230,6 +238,29 @@ export async function POST(req: Request) {
       if (error) return NextResponse.json({ erro: "interno" }, { status: 500 });
       await log("status", null, { status: body.status });
       return NextResponse.json({ ok: true, status: body.status });
+    }
+
+    // ----- Definir início oficial dos dados (métricas) — admin -----
+    case "metricas_desde": {
+      const valor =
+        body.metricas_desde && body.metricas_desde.trim()
+          ? body.metricas_desde.trim()
+          : undefined;
+      // Grava no config_json (fonte da verdade da config visual/comportamental).
+      const cfg = {
+        ...tenant.config,
+        evento: { ...tenant.config.evento, metricas_desde: valor },
+      };
+      const { error } = await admin
+        .from("lives")
+        .update({ config_json: cfg })
+        .eq("id", liveId);
+      if (error) {
+        console.error("[mod] metricas_desde:", error.message);
+        return NextResponse.json({ erro: "interno" }, { status: 500 });
+      }
+      await log("metricas_desde", null, { metricas_desde: valor ?? null });
+      return NextResponse.json({ ok: true, metricas_desde: valor ?? null });
     }
 
     // ----- Promover staff (RF-50, admin) -----

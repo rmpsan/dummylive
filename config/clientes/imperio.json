@@ -25,6 +25,7 @@
     "imagem_fundo_entrada": "/imperio/bg.png",
     "destaque_imagem": "",
     "imagem_showcase": "/imperio/mentoras-crop.png",
+    "imagem_aguardando": "/imperio/aguardando.jpg",
     "cores": {
       "primaria": "#D4A24C",
       "secundaria": "#1A0509",

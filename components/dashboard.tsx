@@ -32,7 +32,17 @@ interface DashData {
     interacoes: number;
   }[];
   status: Status;
+  metricas_desde?: string | null;
   truncado?: boolean;
+}
+
+/** ISO (UTC) → valor de <input type="datetime-local"> (hora local). */
+function isoParaInputLocal(iso: string | null | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
 export function Dashboard({
@@ -49,6 +59,10 @@ export function Dashboard({
   const [erro, setErro] = useState(false);
   const [status, setStatus] = useState<Status>(config.evento.status);
   const [atualizado, setAtualizado] = useState<number>(0);
+  const [desdeInput, setDesdeInput] = useState<string>(
+    isoParaInputLocal(config.evento.metricas_desde)
+  );
+  const [salvandoDesde, setSalvandoDesde] = useState(false);
 
   const carregar = useCallback(async () => {
     try {
@@ -90,6 +104,24 @@ export function Dashboard({
       setStatus(novo);
       toast.show(`Status: ${novo.replace("_", " ")}.`, "sucesso");
     } else toast.show("Não foi possível mudar o status.", "erro");
+  }
+
+  async function salvarDesde(valorInput: string | null) {
+    setSalvandoDesde(true);
+    const iso = valorInput ? new Date(valorInput).toISOString() : null;
+    const res = await fetch("/api/mod", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug, acao: "metricas_desde", metricas_desde: iso }),
+    });
+    setSalvandoDesde(false);
+    if (res.ok) {
+      toast.show(
+        iso ? "Início oficial definido." : "Contagem liberada (conta tudo).",
+        "sucesso"
+      );
+      await carregar();
+    } else toast.show("Não foi possível salvar.", "erro");
   }
 
   const k = data?.kpis;
@@ -162,6 +194,56 @@ export function Dashboard({
                 {s.replace("_", " ")}
               </button>
             ))}
+          </div>
+        </section>
+
+        {/* Início oficial dos dados — ignora testes anteriores à transmissão */}
+        <section className="dl-card flex flex-col gap-3 p-4">
+          <div>
+            <h2 className="text-sm font-semibold">Início oficial dos dados</h2>
+            <p className="text-xs text-[var(--kv-texto-secundario)]">
+              As métricas contam a partir desta data/hora — ignora os testes
+              feitos antes da transmissão.{" "}
+              {data?.metricas_desde
+                ? `Atualmente: desde ${new Date(data.metricas_desde).toLocaleString("pt-BR")}.`
+                : "Atualmente: contando tudo."}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="datetime-local"
+              value={desdeInput}
+              onChange={(e) => setDesdeInput(e.target.value)}
+              className="dl-field !min-h-0 w-auto py-1.5 text-sm"
+            />
+            <button
+              onClick={() => salvarDesde(desdeInput)}
+              disabled={salvandoDesde || !desdeInput}
+              className="dl-btn dl-btn-primary px-3 py-1.5 text-xs"
+            >
+              Salvar início
+            </button>
+            <button
+              onClick={() => {
+                const v = isoParaInputLocal(new Date().toISOString());
+                setDesdeInput(v);
+                salvarDesde(v);
+              }}
+              disabled={salvandoDesde}
+              className="dl-btn dl-btn-ghost px-3 py-1.5 text-xs"
+            >
+              Marcar agora
+            </button>
+            <button
+              onClick={() => {
+                setDesdeInput("");
+                salvarDesde(null);
+              }}
+              disabled={salvandoDesde}
+              className="dl-btn dl-btn-ghost px-3 py-1.5 text-xs"
+            >
+              Limpar
+            </button>
           </div>
         </section>
 

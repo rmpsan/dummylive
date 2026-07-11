@@ -365,6 +365,35 @@ function Aguardando({ config }: { config: ClienteConfig }) {
     return () => clearInterval(id);
   }, [config.evento.data_inicio]);
 
+  const thumb = config.kv.imagem_aguardando;
+
+  // Com thumb: imagem preenche a área do player (16:9), com a contagem/aviso
+  // sobrepostos no rodapé.
+  if (thumb) {
+    return (
+      <div className="relative aspect-video w-full overflow-hidden bg-black">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={thumb}
+          alt={config.evento.nome}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-2 p-4 text-center sm:p-6">
+          <span className="dl-pill">● Aguardando</span>
+          <p className="max-w-md text-sm font-medium text-white sm:text-base">
+            {config.textos.aguardando}
+          </p>
+          {restante && (
+            <div className="font-[family-name:var(--kv-font-mono)] text-3xl font-bold tabular-nums text-[var(--kv-primaria)] sm:text-4xl">
+              {restante}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dl-ambient flex aspect-video w-full flex-col items-center justify-center gap-4 p-6 text-center">
       <span className="dl-pill">● Aguardando</span>

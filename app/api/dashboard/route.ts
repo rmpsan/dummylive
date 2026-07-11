@@ -30,38 +30,50 @@ export async function GET(req: Request) {
   const admin = getAdminClient();
   const agora = Date.now();
 
-  // --- Buscas (limitadas) ---
+  // Início oficial dos dados (RF): só conta atividade a partir daqui — evita
+  // que os testes anteriores à transmissão contaminem as métricas.
+  const desdeIso = tenant.config.evento?.metricas_desde || null;
+
+  // --- Buscas (limitadas; filtradas por "início oficial" quando definido) ---
+  let qSess = admin
+    .from("sessoes")
+    .select(
+      "id, participante_id, entrou_em, saiu_em, ultimo_heartbeat, encerrada, tempo_online_seg, percentual_concluido, dispositivo"
+    )
+    .eq("live_id", liveId);
+  if (desdeIso) qSess = qSess.gte("entrou_em", desdeIso);
+
+  let qMsgs = admin
+    .from("mensagens_chat")
+    .select("participante_id, created_at, apagada")
+    .eq("live_id", liveId);
+  if (desdeIso) qMsgs = qMsgs.gte("created_at", desdeIso);
+
+  let qHb = admin
+    .from("eventos_tracking")
+    .select("video_time")
+    .eq("live_id", liveId)
+    .eq("tipo", "heartbeat")
+    .not("video_time", "is", null);
+  if (desdeIso) qHb = qHb.gte("ts", desdeIso);
+
+  let qInt = admin
+    .from("eventos_tracking")
+    .select("sessao_id, tipo")
+    .eq("live_id", liveId)
+    .in("tipo", ["reaction", "cta_click"]);
+  if (desdeIso) qInt = qInt.gte("ts", desdeIso);
+
   const [sessRes, partRes, msgsRes, hbRes, intRes] = await Promise.all([
-    admin
-      .from("sessoes")
-      .select(
-        "id, participante_id, entrou_em, saiu_em, ultimo_heartbeat, encerrada, tempo_online_seg, percentual_concluido, dispositivo"
-      )
-      .eq("live_id", liveId)
-      .limit(5000),
+    qSess.limit(5000),
     admin
       .from("participantes")
       .select("id, email, nome, papel, banido")
       .eq("live_id", liveId)
       .limit(5000),
-    admin
-      .from("mensagens_chat")
-      .select("participante_id, created_at, apagada")
-      .eq("live_id", liveId)
-      .limit(20000),
-    admin
-      .from("eventos_tracking")
-      .select("video_time")
-      .eq("live_id", liveId)
-      .eq("tipo", "heartbeat")
-      .not("video_time", "is", null)
-      .limit(50000),
-    admin
-      .from("eventos_tracking")
-      .select("sessao_id, tipo")
-      .eq("live_id", liveId)
-      .in("tipo", ["reaction", "cta_click"])
-      .limit(50000),
+    qMsgs.limit(20000),
+    qHb.limit(50000),
+    qInt.limit(50000),
   ]);
 
   const sessoes = sessRes.data ?? [];
@@ -94,7 +106,16 @@ export async function GET(req: Request) {
   const onlineAgora = new Set(
     ativos.map((s) => s.participante_id).filter(Boolean)
   ).size;
-  const participantesUnicos = participantes.filter((p) => !p.banido).length;
+  const banidos = new Set(
+    participantes.filter((p) => p.banido).map((p) => p.id)
+  );
+  // Com início oficial: conta quem realmente teve sessão a partir dali (não só
+  // quem se cadastrou). Sem ele: todos os inscritos não-banidos.
+  const participantesUnicos = desdeIso
+    ? new Set(
+        sessoes.map((s) => s.participante_id).filter((id) => id && !banidos.has(id))
+      ).size
+    : participantes.filter((p) => !p.banido).length;
   const tempos = sessoes.map((s) => s.tempo_online_seg ?? 0).filter((n) => n > 0);
   const tempoMedio = tempos.length
     ? Math.round(tempos.reduce((a, b) => a + b, 0) / tempos.length)
@@ -180,7 +201,11 @@ export async function GET(req: Request) {
     if (!atual || (s.tempo_online_seg ?? 0) > (atual.tempo_online_seg ?? 0))
       sessPorPart.set(s.participante_id, s);
   }
-  const tabela = participantes.map((p) => {
+  // Com início oficial, a tabela mostra só quem participou a partir dele.
+  const baseParts = desdeIso
+    ? participantes.filter((p) => sessPorPart.has(p.id))
+    : participantes;
+  const tabela = baseParts.map((p) => {
     const s = sessPorPart.get(p.id);
     const interacoes = (msgPorPart.get(p.id) ?? 0) + (evtPorPart.get(p.id) ?? 0);
     return {
@@ -211,6 +236,7 @@ export async function GET(req: Request) {
     trechos,
     participantes: tabela,
     status: tenant.status,
+    metricas_desde: desdeIso,
     truncado,
   });
 }
