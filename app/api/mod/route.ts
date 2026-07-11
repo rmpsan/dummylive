@@ -27,6 +27,7 @@ const bodySchema = z.object({
     "salvar_config",
     "metricas_desde",
     "transmitir_cg",
+    "limpar_cg",
   ]),
   mensagemId: z.number().int().optional(),
   mensagemIds: z.array(z.number().int()).max(50).optional(),
@@ -282,12 +283,45 @@ export async function POST(req: Request) {
           .filter((m) => !m.apagada)
           .map((m) => [m.id, { id: m.id, autor: m.autor_nome ?? "Participante", texto: m.texto }])
       );
-      const mensagens = ids.map((id) => porId.get(id)).filter(Boolean);
+      const mensagens = ids
+        .map((id) => porId.get(id))
+        .filter((m): m is { id: number; autor: string; texto: string } => Boolean(m));
       if (!mensagens.length)
         return NextResponse.json({ erro: "nenhuma_valida" }, { status: 400 });
+
+      // 1) Overlay em tempo real (browser source do vMix).
       await broadcast(topicoOverlay(liveId), "cg", { mensagens });
+
+      // 2) Persiste no config_json.cg → data source JSON/XML do vMix.
+      const anteriores = tenant.config.cg?.mensagens ?? [];
+      const novas = mensagens.map((m) => ({ id: m.id, nome: m.autor, mensagem: m.texto }));
+      // Evita duplicar ids já na fila; mantém as últimas 60.
+      const idsNovos = new Set(novas.map((n) => n.id));
+      const combinado = [...anteriores.filter((a) => !idsNovos.has(a.id)), ...novas].slice(-60);
+      const cfg = {
+        ...tenant.config,
+        cg: { atualizado: new Date().toISOString(), mensagens: combinado },
+      };
+      await admin.from("lives").update({ config_json: cfg }).eq("id", liveId);
+
       await log("transmitir_cg", null, { total: mensagens.length });
       return NextResponse.json({ ok: true, total: mensagens.length });
+    }
+
+    // ----- Limpa a fila do overlay/data source (staff/moderador) -----
+    case "limpar_cg": {
+      await broadcast(topicoOverlay(liveId), "cg_clear", {});
+      const cfg = {
+        ...tenant.config,
+        cg: { atualizado: new Date().toISOString(), mensagens: [] },
+      };
+      const { error } = await admin
+        .from("lives")
+        .update({ config_json: cfg })
+        .eq("id", liveId);
+      if (error) return NextResponse.json({ erro: "interno" }, { status: 500 });
+      await log("limpar_cg", null, {});
+      return NextResponse.json({ ok: true });
     }
 
     // ----- Promover staff (RF-50, admin) -----

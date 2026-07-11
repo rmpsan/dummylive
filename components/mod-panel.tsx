@@ -54,6 +54,8 @@ export function ModPanel({
     return () => clearTimeout(id);
   }, []);
   const overlayUrl = `${origin}/overlay/${slug}`;
+  const dataUrlJson = `${origin}/api/cg?slug=${slug}&t=${canalToken}`;
+  const dataUrlXml = `${dataUrlJson}&format=xml`;
 
   const moderar = useCallback(
     async (acao: string, extra: Record<string, unknown> = {}) => {
@@ -222,43 +224,48 @@ export function ModPanel({
           )}
 
           {/* Overlay / CG para o vMix */}
-          <Bloco titulo="Overlay para o vMix (CG)">
-            <p className="mb-2.5 text-xs leading-relaxed text-[var(--kv-texto-secundario)]">
-              No chat, clique em <strong className="text-[var(--kv-texto)]">CG</strong>{" "}
-              para selecionar mensagens e depois em{" "}
-              <strong className="text-[var(--kv-texto)]">▶ Transmitir</strong>. Elas
-              entram em fila no overlay, <strong className="text-[var(--kv-texto)]">5s
-              cada</strong>. Use o link abaixo como <em>Web Browser input</em> no
-              vMix (fundo transparente).
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                readOnly
-                value={overlayUrl}
-                onFocus={(e) => e.currentTarget.select()}
-                className="dl-field !min-h-0 flex-1 py-1.5 text-xs"
-              />
+          <Bloco
+            titulo="Overlay / CG para o vMix"
+            acao={
               <button
                 type="button"
-                onClick={() => {
-                  navigator.clipboard?.writeText(overlayUrl).then(
-                    () => toast.show("Link do overlay copiado.", "sucesso"),
-                    () => toast.show("Copie o link manualmente.", "erro")
-                  );
+                onClick={async () => {
+                  const r = await moderar("limpar_cg");
+                  if (r) toast.show("Fila do overlay limpa.", "sucesso");
                 }}
-                className="dl-btn dl-btn-ghost shrink-0 px-3 py-1.5 text-xs"
+                className="text-xs text-[var(--kv-texto-secundario)] hover:text-[var(--kv-erro)]"
               >
-                Copiar
+                limpar fila
               </button>
-              <a
-                href={overlayUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="dl-btn dl-btn-primary shrink-0 px-3 py-1.5 text-xs"
-              >
-                Abrir
-              </a>
-            </div>
+            }
+          >
+            <p className="mb-3 text-xs leading-relaxed text-[var(--kv-texto-secundario)]">
+              No chat, clique em <strong className="text-[var(--kv-texto)]">CG</strong>{" "}
+              para selecionar mensagens e depois em{" "}
+              <strong className="text-[var(--kv-texto)]">▶ Transmitir</strong>. Duas
+              formas de usar no vMix:
+            </p>
+
+            <LinkCopiavel
+              rotulo="A) Página de overlay (Web Browser input · fundo transparente)"
+              url={overlayUrl}
+              abrir
+              onCopiar={() => toast.show("Link do overlay copiado.", "sucesso")}
+            />
+            <LinkCopiavel
+              rotulo="B) Data source JSON (Data Sources Manager)"
+              url={dataUrlJson}
+              onCopiar={() => toast.show("URL JSON copiada.", "sucesso")}
+            />
+            <LinkCopiavel
+              rotulo="Data source XML"
+              url={dataUrlXml}
+              onCopiar={() => toast.show("URL XML copiada.", "sucesso")}
+            />
+            <p className="mt-1 text-[11px] leading-relaxed text-[var(--kv-texto-secundario)]">
+              No vMix → Data Sources Manager → Add → JSON/XML → cole a URL, Update
+              Interval 1000ms. Campos: <code>nome</code>, <code>mensagem</code>.
+            </p>
           </Bloco>
 
           {/* Mensagem oficial */}
@@ -328,6 +335,49 @@ export function ModPanel({
           {/* Promover staff (admin) */}
           {isAdmin && <PromoverStaff moderar={moderar} />}
         </aside>
+      </div>
+    </div>
+  );
+}
+
+function LinkCopiavel({
+  rotulo,
+  url,
+  abrir,
+  onCopiar,
+}: {
+  rotulo: string;
+  url: string;
+  abrir?: boolean;
+  onCopiar?: () => void;
+}) {
+  return (
+    <div className="mb-3">
+      <p className="mb-1 text-[11px] font-medium text-[var(--kv-texto-secundario)]">{rotulo}</p>
+      <div className="flex items-center gap-2">
+        <input
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          className="dl-field !min-h-0 flex-1 py-1.5 text-xs"
+        />
+        <button
+          type="button"
+          onClick={() => navigator.clipboard?.writeText(url).then(onCopiar)}
+          className="dl-btn dl-btn-ghost shrink-0 px-3 py-1.5 text-xs"
+        >
+          Copiar
+        </button>
+        {abrir && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dl-btn dl-btn-primary shrink-0 px-3 py-1.5 text-xs"
+          >
+            Abrir
+          </a>
+        )}
       </div>
     </div>
   );

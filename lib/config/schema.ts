@@ -174,6 +174,17 @@ export const conteudoSchema = z.object({
   galeria: z.array(itemGaleriaSchema).default([]),
 });
 
+/** Fila de curadoria persistida (alimenta o data source JSON/XML do vMix). */
+export const cgItemSchema = z.object({
+  id: z.number(),
+  nome: z.string().default(""),
+  mensagem: z.string().default(""),
+});
+export const cgSchema = z.object({
+  atualizado: z.string().default(""),
+  mensagens: z.array(cgItemSchema).default([]),
+});
+
 export const clienteConfigSchema = z.object({
   cliente: z.string().min(1),
   slug: z
@@ -187,6 +198,8 @@ export const clienteConfigSchema = z.object({
   features: featuresSchema.default({}),
   tracking: trackingSchema.default({}),
   conteudo: conteudoSchema.default({}),
+  /** Fila de curadoria (runtime) — consumida pelo overlay e pelo data source. */
+  cg: cgSchema.default({}),
 });
 
 export type ClienteConfig = z.infer<typeof clienteConfigSchema>;
