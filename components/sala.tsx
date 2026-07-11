@@ -125,6 +125,16 @@ export function Sala({
               <span className="dl-live-dot" /> {config.textos.ao_vivo_label}
             </span>
           )}
+          <a
+            href={`/${slug}/ajuda`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="dl-btn dl-btn-ghost px-3 py-1.5 text-xs"
+            aria-label="Ajuda e dúvidas"
+          >
+            <span aria-hidden>?</span>
+            <span className="hidden sm:inline">Ajuda</span>
+          </a>
           {trackingAtivo && (
             <button
               onClick={sairEspectador}

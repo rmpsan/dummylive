@@ -145,12 +145,21 @@ export default async function GatePage({
               {config.textos.rodape}
             </p>
           )}
-          <Link
-            href={`/${slug}/staff`}
-            className="text-xs text-[var(--kv-texto-secundario)] underline-offset-4 transition-colors hover:text-[var(--kv-texto)] hover:underline"
-          >
-            Sou da equipe
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/${slug}/ajuda`}
+              className="text-xs text-[var(--kv-texto-secundario)] underline-offset-4 transition-colors hover:text-[var(--kv-texto)] hover:underline"
+            >
+              Ajuda / Dúvidas
+            </Link>
+            <span className="h-3 w-px bg-[var(--borda-forte)]" />
+            <Link
+              href={`/${slug}/staff`}
+              className="text-xs text-[var(--kv-texto-secundario)] underline-offset-4 transition-colors hover:text-[var(--kv-texto)] hover:underline"
+            >
+              Sou da equipe
+            </Link>
+          </div>
         </div>
       </div>
     </main>
