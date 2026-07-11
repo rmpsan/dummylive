@@ -25,11 +25,13 @@ export function CgOverlay({
   liveId,
   cssVars,
   marca,
+  logo,
 }: {
   canalToken: string;
   liveId: string;
   cssVars: CSSProperties;
   marca?: string;
+  logo?: string;
 }) {
   const supabase = useMemo(() => getBrowserClient(), []);
   const filaRef = useRef<CgItem[]>([]);
@@ -86,62 +88,67 @@ export function CgOverlay({
   return (
     <div
       style={cssVars}
-      className="pointer-events-none fixed inset-0 overflow-hidden"
+      className="pointer-events-none fixed inset-0 flex items-center justify-center overflow-hidden"
     >
       {atual && (
         <div
           key={atual.id}
-          className="absolute bottom-[7vh] left-[5vw] right-[5vw] flex justify-start"
+          className="flex w-[82vw] max-w-[1600px] flex-col"
           style={{
-            transform: visivel ? "translateY(0)" : "translateY(28px)",
+            transform: visivel ? "translateY(0)" : "translateY(36px)",
             opacity: visivel ? 1 : 0,
             transition: `transform ${SAIDA_MS}ms cubic-bezier(.22,.61,.36,1), opacity ${SAIDA_MS}ms ease`,
           }}
         >
+          {/* Cartão grande, centralizado, CANTOS RETOS (crop no vMix). */}
           <div
-            className="flex max-w-[70vw] items-stretch overflow-hidden rounded-[16px] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.7)]"
+            className="flex flex-col gap-8 px-[5vw] py-[5vh]"
             style={{
               background:
-                "linear-gradient(135deg, color-mix(in srgb, var(--kv-superficie) 92%, black) 0%, color-mix(in srgb, var(--kv-fundo) 92%, black) 100%)",
-              border: "1px solid color-mix(in srgb, var(--kv-primaria) 35%, transparent)",
-              backdropFilter: "blur(6px)",
+                "linear-gradient(135deg, color-mix(in srgb, var(--kv-superficie) 94%, black) 0%, color-mix(in srgb, var(--kv-fundo) 94%, black) 100%)",
+              borderLeft: "14px solid var(--kv-primaria)",
+              boxShadow: "0 30px 90px -20px rgba(0,0,0,0.8)",
             }}
           >
-            {/* Barra de destaque */}
-            <div
-              className="w-[8px] shrink-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, var(--kv-primaria), color-mix(in srgb, var(--kv-primaria) 55%, var(--kv-destaque)))",
-              }}
-            />
-            <div className="flex flex-col gap-2 px-7 py-5">
-              <div className="flex items-center gap-3">
-                <span
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[15px] font-bold"
-                  style={{
-                    background: "var(--kv-primaria)",
-                    color: "var(--kv-sobre-primaria)",
-                    fontFamily: "var(--kv-font-titulo)",
-                  }}
-                >
-                  {(atual.autor || "").slice(0, 42)}
-                </span>
-                {marca && (
+            {/* Cabeçalho: logo do cliente + marca */}
+            <div className="flex items-center gap-6">
+              {logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={logo}
+                  alt={marca || ""}
+                  className="h-[9vh] max-h-[110px] w-auto object-contain"
+                />
+              ) : (
+                marca && (
                   <span
-                    className="text-[12px] font-semibold uppercase tracking-[0.18em]"
-                    style={{ color: "color-mix(in srgb, var(--kv-texto) 55%, transparent)" }}
+                    className="text-[2.4vh] font-semibold uppercase tracking-[0.22em]"
+                    style={{ color: "color-mix(in srgb, var(--kv-texto) 60%, transparent)" }}
                   >
                     {marca}
                   </span>
-                )}
-              </div>
+                )
+              )}
+            </div>
+
+            {/* Autor + mensagem */}
+            <div className="flex flex-col gap-5">
+              <span
+                className="self-start px-6 py-2.5 text-[2.6vh] font-bold"
+                style={{
+                  background: "var(--kv-primaria)",
+                  color: "var(--kv-sobre-primaria)",
+                  fontFamily: "var(--kv-font-titulo)",
+                }}
+              >
+                {(atual.autor || "").slice(0, 48)}
+              </span>
               <p
-                className="max-w-[62vw] text-[26px] font-medium leading-snug"
+                className="text-[5.4vh] font-semibold leading-[1.12]"
                 style={{
                   color: "var(--kv-texto)",
                   fontFamily: "var(--kv-font-corpo)",
-                  textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+                  textShadow: "0 3px 18px rgba(0,0,0,0.55)",
                 }}
               >
                 {atual.texto}

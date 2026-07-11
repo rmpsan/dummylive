@@ -41,6 +41,7 @@ export default async function OverlayPage({
         liveId={tenant.liveId}
         cssVars={cssVars}
         marca={tenant.config.evento.nome}
+        logo={tenant.config.kv.logo ?? ""}
       />
     </>
   );
