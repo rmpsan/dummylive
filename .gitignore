@@ -43,5 +43,5 @@ next-env.d.ts
 # playwright / screenshots (apenas na raiz — NÃO ignora assets em public/)
 .playwright-mcp/
 /*.png
-/manual_cliente.html
+/manual_*.html
 /manual*.pdf
