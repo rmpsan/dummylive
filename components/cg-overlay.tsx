@@ -100,9 +100,10 @@ export function CgOverlay({
             transition: `transform ${SAIDA_MS}ms cubic-bezier(.22,.61,.36,1), opacity ${SAIDA_MS}ms ease`,
           }}
         >
-          {/* Cartão grande, centralizado, CANTOS RETOS (crop no vMix). */}
+          {/* Cartão grande, centralizado, CANTOS RETOS (crop no vMix).
+              Logo à ESQUERDA, texto à direita. */}
           <div
-            className="flex flex-col gap-8 px-[5vw] py-[5vh]"
+            className="flex items-center gap-[3.5vw] px-[5vw] py-[6vh]"
             style={{
               background:
                 "linear-gradient(135deg, color-mix(in srgb, var(--kv-superficie) 94%, black) 0%, color-mix(in srgb, var(--kv-fundo) 94%, black) 100%)",
@@ -110,29 +111,24 @@ export function CgOverlay({
               boxShadow: "0 30px 90px -20px rgba(0,0,0,0.8)",
             }}
           >
-            {/* Cabeçalho: logo do cliente + marca */}
-            <div className="flex items-center gap-6">
-              {logo ? (
-                // eslint-disable-next-line @next/next/no-img-element
+            {logo && (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={logo}
                   alt={marca || ""}
-                  className="h-[9vh] max-h-[110px] w-auto object-contain"
+                  className="h-[18vh] max-h-[220px] w-auto shrink-0 object-contain"
                 />
-              ) : (
-                marca && (
-                  <span
-                    className="text-[2.4vh] font-semibold uppercase tracking-[0.22em]"
-                    style={{ color: "color-mix(in srgb, var(--kv-texto) 60%, transparent)" }}
-                  >
-                    {marca}
-                  </span>
-                )
-              )}
-            </div>
+                <span
+                  className="h-[20vh] w-px shrink-0"
+                  style={{ background: "color-mix(in srgb, var(--kv-primaria) 45%, transparent)" }}
+                  aria-hidden
+                />
+              </>
+            )}
 
             {/* Autor + mensagem */}
-            <div className="flex flex-col gap-5">
+            <div className="flex min-w-0 flex-col gap-5">
               <span
                 className="self-start px-6 py-2.5 text-[2.6vh] font-bold"
                 style={{
