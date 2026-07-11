@@ -249,10 +249,12 @@ export function Sala({
           <aside
             className={`${
               chatDireita ? "lg:order-2" : "lg:order-1"
-            } flex min-h-0 flex-1 flex-col gap-3 p-3 lg:p-0`}
+            } flex min-h-0 flex-col gap-3 p-3 lg:relative lg:p-0`}
           >
             {ctaBloco && <div className="lg:hidden">{ctaBloco}</div>}
-            <div className="h-[62vh] min-h-[340px] lg:h-[calc(var(--app-vh)-2.5rem-40px)]">
+            {/* Mobile: altura fixa. Desktop: preenche a coluna (mesma altura do
+                vídeo) via absolute — não estica a página com muitas mensagens. */}
+            <div className="h-[62vh] min-h-[340px] lg:absolute lg:inset-0 lg:h-auto lg:min-h-0">
               <Chat
                 slug={slug}
                 liveId={liveId}
